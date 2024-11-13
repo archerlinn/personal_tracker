@@ -1,0 +1,36 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Manage Categories</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body class="light-mode">
+    <div class="main-container">
+        <!-- Header -->
+        <div class="header">
+            <h1>Manage Categories</h1>
+            <a href="/" class="back-link">← Back to To-Do List</a>
+        </div>
+
+        <!-- Category Form -->
+        <form id="category-form" action="/add_category" method="post">s
+            <input type="text" name="category" placeholder="Enter new category" required>
+            <button type="submit">Add Category</button>
+        </form>
+
+        <!-- Category List -->
+        <ul id="category-list">
+            {% for category in categories %}
+            <li>
+                {{ category }}
+                <form action="/delete_category/{{ category }}" method="post" class="delete-form">
+                    <button type="submit" class="delete-button">Delete</button>
+                </form>
+            </li>
+            {% endfor %}
+        </ul>
+    </div>
+</body>
+</html>
