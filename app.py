@@ -1,93 +1,163 @@
-from flask import Flask, render_template, request, redirect, jsonify, url_for
+from flask import Flask, render_template, request, redirect, jsonify
 import pandas as pd
 from datetime import datetime
 
 app = Flask(__name__)
 
-# Initialize an empty to-do list DataFrame
-TODO_COLUMNS = ["Task", "Priority", "Status", "Due Date", "Category"]
-todo_df = pd.DataFrame(columns=TODO_COLUMNS)
+# Define file paths
+TASKS_FILE = 'tasks.csv'
+CATEGORIES_FILE = 'categories.csv'
 
-# Initialize a list of categories
-categories = ["Work", "Personal", "Shopping"]
+# Initialize CSV files if they don't exist
+def initialize_csv_files():
+    try:
+        tasks = pd.read_csv(TASKS_FILE)
+        if list(tasks.columns) != ["id", "task", "priority", "status", "due_date", "category"]:
+            raise ValueError("Incorrect columns in tasks.csv")
+    except (FileNotFoundError, ValueError):
+        pd.DataFrame(columns=["id", "task", "priority", "status", "due_date", "category"]).to_csv(TASKS_FILE, index=False)
 
-# Function to sort tasks by priority and due date
-def sort_tasks(df):
-    priority_order = {"High": 0, "Medium": 1, "Low": 2}
-    df["Priority Rank"] = df["Priority"].map(priority_order)
-    df["Due Date"] = pd.to_datetime(df["Due Date"], errors="coerce")
-    df = df.sort_values(by=["Priority Rank", "Due Date"]).drop(columns=["Priority Rank"]).reset_index(drop=True)
-    return df
+    try:
+        categories = pd.read_csv(CATEGORIES_FILE)
+        if list(categories.columns) != ["id", "category", "type"]:
+            raise ValueError("Incorrect columns in categories.csv")
+    except (FileNotFoundError, ValueError):
+        pd.DataFrame(columns=["id", "category", "type"]).to_csv(CATEGORIES_FILE, index=False)
+
+# Helper function to read tasks
+def read_tasks():
+    try:
+        return pd.read_csv(TASKS_FILE)
+    except Exception:
+        return pd.DataFrame(columns=["id", "task", "priority", "status", "due_date", "category"])
+
+# Helper function to read categories
+def read_categories():
+    try:
+        return pd.read_csv(CATEGORIES_FILE)
+    except Exception:
+        return pd.DataFrame(columns=["id", "category", "type"])
+
+# Helper function to save tasks
+def save_tasks(df):
+    df.to_csv(TASKS_FILE, index=False)
+
+# Helper function to save categories
+def save_categories(df):
+    df.to_csv(CATEGORIES_FILE, index=False)
+
+# Initialize CSV files
+initialize_csv_files()
 
 # Route for the main page
 @app.route("/")
 def index():
-    tasks = sort_tasks(todo_df).to_dict(orient="records")
-    return render_template("index.html", tasks=tasks, categories=categories)
+    tasks = read_tasks()
+    categories = read_categories()
+
+    # Group categories by type
+    grouped_categories = categories.groupby('type')['category'].apply(list).to_dict()
+
+    # Prepare tasks grouped by type
+    tasks_by_type = {}
+    for type_, category_list in grouped_categories.items():
+        tasks_by_type[type_] = tasks[tasks['category'].isin(category_list)].to_dict(orient='records')
+
+    # Pass the full list of categories for the dropdown
+    all_categories = categories.to_dict(orient='records')
+
+    return render_template("index.html", tasks_by_type=tasks_by_type, all_categories=all_categories)
+
+@app.route("/categories")
+def manage_categories():
+    categories = read_categories()
+    # Group categories by type
+    grouped_categories = categories.groupby('type')['category'].apply(list).to_dict()
+    return render_template("categories.html", grouped_categories=grouped_categories)
+
+# Route to add a new category
+@app.route("/add_category", methods=["POST"])
+def add_category():
+    category = request.form.get("category").strip()
+    type_ = request.form.get("type").strip()
+    categories = read_categories()
+
+    if not category:
+        return redirect("/categories")
+
+    # Automatically assign a new ID
+    new_id = categories["id"].max() + 1 if not categories.empty else 1
+    new_category = pd.DataFrame([[new_id, category, type_]], columns=["id", "category", "type"])
+    categories = pd.concat([categories, new_category], ignore_index=True)
+
+    save_categories(categories)
+    return redirect("/categories")
 
 # Route to add a new task
 @app.route("/add", methods=["POST"])
 def add_task():
-    global todo_df
-    task = request.form.get("task")
-    priority = request.form.get("priority")
-    due_date = request.form.get("due_date")
-    category = request.form.get("category")
+    task = request.form.get("task", "").strip()
+    priority = request.form.get("priority", "").strip()
+    due_date = request.form.get("due_date", "").strip()
+    category = request.form.get("category", "").strip()
+    tasks = read_tasks()
 
-    # Validate the date format
+    # Validate inputs
+    if not task or not priority or not due_date or not category:
+        return redirect("/")
+
+    # Parse and format the due date
     try:
         due_date = datetime.strptime(due_date, "%Y-%m-%d").strftime("%Y-%m-%d")
     except ValueError:
         due_date = ""
 
-    if task.strip():
-        new_task = pd.DataFrame([[task, priority, "Not Started", due_date, category]], columns=TODO_COLUMNS)
-        todo_df = pd.concat([todo_df, new_task], ignore_index=True)
-        todo_df = sort_tasks(todo_df)
+    new_id = tasks["id"].max() + 1 if not tasks.empty else 1
+    new_task = pd.DataFrame([[new_id, task, priority, "Not Started", due_date, category]],
+                            columns=["id", "task", "priority", "status", "due_date", "category"])
 
+    tasks = pd.concat([tasks, new_task], ignore_index=True)
+    save_tasks(tasks)
     return redirect("/")
 
-# Route to delete a task by index
-@app.route("/delete/<int:index>", methods=["POST"])
-def delete_task(index):
-    global todo_df
-    if 0 <= index < len(todo_df):
-        todo_df = todo_df.drop(index).reset_index(drop=True)
+
+# Route to delete a task
+@app.route("/delete_task/<int:task_id>", methods=["POST"])
+def delete_task(task_id):
+    tasks = read_tasks()
+    tasks = tasks[tasks["id"] != task_id]
+    save_tasks(tasks)
     return redirect("/")
 
 # Route to update the status of a task
-@app.route("/update_status/<int:index>", methods=["POST"])
-def update_status(index):
-    global todo_df
-    new_status = request.form.get("status")
-    if 0 <= index < len(todo_df):
-        todo_df.at[index, "Status"] = new_status
-    return jsonify(success=True)
+@app.route("/update_status/<int:task_id>", methods=["POST"])
+def update_status(task_id):
+    new_status = request.form.get("status").strip()
+    tasks = read_tasks()
 
-# Route for the Manage Categories page
-@app.route("/categories")
-def manage_categories():
-    return render_template("categories.html", categories=categories)
+    if task_id in tasks["id"].values:
+        tasks.loc[tasks["id"] == task_id, "status"] = new_status
+        save_tasks(tasks)
 
-# Route to add a new category
-@app.route("/add_category", methods=["POST"])
-def add_category():
-    global categories
-    new_category = request.form.get("category")
-    if new_category and new_category not in categories:
-        categories.append(new_category)
+    return redirect("/")
+
+# Route to delete a single category
+@app.route("/delete_category/<int:category_id>", methods=["POST"])
+def delete_category(category_id):
+    categories = read_categories()
+    categories = categories[categories["id"] != category_id]
+    save_categories(categories)
     return redirect("/categories")
 
-# Route to delete a category
-@app.route("/delete_category/<string:category>", methods=["POST"])
-def delete_category(category):
-    global categories, todo_df
-    if category in categories:
-        categories.remove(category)
-        # Optionally, remove tasks with the deleted category
-        todo_df = todo_df[todo_df["Category"] != category].reset_index(drop=True)
+# Route to delete an entire category type
+@app.route("/delete_type/<type_name>", methods=["POST"])
+def delete_type(type_name):
+    categories = read_categories()
+    # Filter out all categories with the specified type
+    categories = categories[categories["type"] != type_name]
+    save_categories(categories)
     return redirect("/categories")
 
-# Run the app on localhost
 if __name__ == "__main__":
-    app.run(debug=True, host="127.0.0.1", port=5000)
+    app.run(debug=True)
+
