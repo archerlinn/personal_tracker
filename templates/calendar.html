@@ -1,0 +1,108 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <title>Calendar View</title>
+    <!-- Link to your main CSS file -->
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+
+    <!-- FullCalendar CSS -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/main.min.css">
+    <!-- Include additional plugin CSS if needed -->
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/daygrid.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/timegrid.min.css">
+    <link rel="stylesheet" href="https://cdn.jsdelivr.net/npm/fullcalendar@6.1.8/list.min.css">
+</head>
+<body class="light-mode">
+    <!-- Page Container -->
+    <div class="page-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>Manager</h2>
+            <ul>
+                <li><a href="/">To-Do List</a></li>
+                <li><a href="/categories">Manage Categories</a></li>
+                <li><a href="/calendar" class="active">Calendar</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Calendar View</h1>
+                <!-- Dark Mode Toggle -->
+                <div class="toggle-container">
+                    <input type="checkbox" id="theme-toggle-checkbox" hidden>
+                    <label for="theme-toggle-checkbox" class="toggle-label">
+                        <span class="toggle-circle" id="toggle-icon">☀️</span>
+                    </label>
+                </div>
+            </div>
+
+            <!-- Calendar Container -->
+            <div id="calendar"></div>
+        </div>
+    </div>
+
+    <!-- FullCalendar JS -->
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/core@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/daygrid@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/timegrid@6.1.8/index.global.min.js"></script>
+    <script src="https://cdn.jsdelivr.net/npm/@fullcalendar/list@6.1.8/index.global.min.js"></script>
+    <!-- Your JavaScript -->
+    <script>
+        document.addEventListener('DOMContentLoaded', function() {
+            var calendarEl = document.getElementById('calendar');
+            
+
+            var events = {{ events | tojson | safe }};
+
+            var calendar = new FullCalendar.Calendar(calendarEl, {
+                initialView: 'dayGridMonth',
+                events: events,
+                headerToolbar: {
+                    left: 'prev,next today',
+                    center: 'title',
+                    right: 'dayGridMonth,timeGridWeek,listWeek'
+                },
+                eventClick: function(info) {
+                    if (info.event.url) {
+                        info.jsEvent.preventDefault();
+                        window.location.href = info.event.url;
+                    }
+                }
+            });
+
+            calendar.render();
+        });
+
+        // Dark Mode Toggle Script
+        const themeToggleCheckbox = document.getElementById('theme-toggle-checkbox');
+        const body = document.body;
+        const toggleIcon = document.getElementById('toggle-icon');
+
+        // Initialize Dark Mode based on localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark-mode');
+            themeToggleCheckbox.checked = true;
+            toggleIcon.textContent = '🌙';
+        } else {
+            toggleIcon.textContent = '☀️';
+        }
+
+        // Toggle Dark Mode
+        themeToggleCheckbox.addEventListener('change', () => {
+            if (themeToggleCheckbox.checked) {
+                body.classList.add('dark-mode');
+                toggleIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark-mode');
+                toggleIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
+</body>
+</html>

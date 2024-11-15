@@ -7,52 +7,105 @@
     <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
 </head>
 <body class="light-mode">
-    <div class="main-content">
-        <h1>Manage Categories</h1>
+    <!-- Page Container -->
+    <div class="page-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>Manager</h2>
+            <ul>
+                <li><a href="/" {% if request.path == '/' %}class="active"{% endif %}>To-Do List</a></li>
+                <li><a href="/categories" {% if request.path == '/categories' %}class="active"{% endif %}>Manage Categories</a></li>
+                <li><a href="/calendar" {% if request.path == '/calendar' %}class="active"{% endif %}>Calendar</a></li>
+            </ul>            
+        </aside>
 
-        <!-- Category Form -->
-        <form id="category-manager" action="/add_category" method="post">
-            <input type="text" name="category" placeholder="Enter new category..." required>
-            <input type="text" name="type" placeholder="Enter type..." required>
-            <button type="submit">Add Category</button>
-        </form>
-
-        <!-- Grouped Category Tables by Type -->
-        {% for type_name, categories in grouped_categories.items() %}
-        <div class="category-group">
-            <div class="category-header">
-                <h2>{{ type_name }}</h2>
-                <!-- Delete Entire Type Button -->
-                <form action="/delete_type/{{ type_name }}" method="post" class="inline-form">
-                    <button type="submit" class="delete-type-button">Delete {{ type_name }}</button>
-                </form>
+        <!-- Main Content -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Manage Categories</h1>
+                <!-- Dark Mode Toggle -->
+                <div class="toggle-container">
+                    <input type="checkbox" id="theme-toggle-checkbox" hidden>
+                    <label for="theme-toggle-checkbox" class="toggle-label">
+                        <span class="toggle-circle" id="toggle-icon">☀️</span>
+                    </label>
+                </div>
             </div>
 
-            <table class="category-table">
-                <thead>
-                    <tr>
-                        <th>Category</th>
-                        <th>Type</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% for category in categories %}
-                    <tr>
-                        <td>{{ category }}</td>
-                        <td>{{ type_name }}</td>
-                        <td>
-                            <!-- Delete Single Category Button -->
-                            <form action="/delete_category/{{ loop.index }}" method="post" class="inline-form">
-                                <button type="submit" class="delete-button">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                </tbody>
-            </table>
+            <!-- Category Form -->
+            <form id="category-manager" action="/add_category" method="post">
+                <input type="text" name="category" placeholder="Enter new category..." required>
+                <input type="text" name="type" placeholder="Enter type..." required>
+                <button type="submit">Add Category</button>
+            </form>
+
+            <!-- Grouped Category Tables by Type -->
+            {% for type_name, categories in grouped_categories.items() %}
+            <div class="category-group">
+                <div class="category-header">
+                    <h2>{{ type_name }}</h2>
+                    <!-- Delete Entire Type Button -->
+                    <form action="/delete_type/{{ type_name }}" method="post" class="inline-form">
+                        <button type="submit" class="delete-type-button">Delete {{ type_name }}</button>
+                    </form>
+                </div>
+
+                <table class="category-table">
+                    <thead>
+                        <tr>
+                            <th>Category</th>
+                            <th>Type</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% for category in categories %}
+                        <tr>
+                            <td>{{ category['category'] }}</td>
+                            <td>{{ category['type'] }}</td>
+                            <td>
+                                <!-- Use the actual category ID for deletion -->
+                                <form action="/delete_category/{{ category['id'] }}" method="post" class="inline-form">
+                                    <button type="submit" class="delete-button">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                    </tbody>
+                </table>
+            </div>
+            {% endfor %}
         </div>
-        {% endfor %}
     </div>
+
+    <!-- JavaScript for Dark Mode Toggle -->
+    <script>
+        const themeToggleCheckbox = document.getElementById('theme-toggle-checkbox');
+        const body = document.body;
+        const toggleIcon = document.getElementById('toggle-icon');
+
+        // Initialize Dark Mode based on localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark-mode');
+            themeToggleCheckbox.checked = true;
+            toggleIcon.textContent = '🌙';
+        } else {
+            toggleIcon.textContent = '☀️';
+        }
+
+        // Toggle Dark Mode
+        themeToggleCheckbox.addEventListener('change', () => {
+            if (themeToggleCheckbox.checked) {
+                body.classList.add('dark-mode');
+                toggleIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark-mode');
+                toggleIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+    </script>
 </body>
 </html>

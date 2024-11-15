@@ -1,6 +1,7 @@
 id,task,priority,status,due_date,category
-1,hi,High,In Progress,2024-11-22,a
-2,fjsodjf;liejwfoi,Low,Not Started,2024-11-27,a
-3,i am archer hahahhahahaha,Medium,Not Started,2024-11-23,hihi
-5,hj,Medium,Completed,2024-11-10,nojoj
-6,"m,",High,Not Started,2024-11-28,nojoj
+1,Review Exam,High,Completed,2024-11-14,ECON370
+3,Add Calendar,Medium,Not Started,2024-11-17,Personal Tracker
+5,Lesson2,Medium,Not Started,2024-11-17,Deep Learning
+8,Lab7,High,Not Started,2024-11-15,ECON360
+9,test,Medium,Not Started,2024-11-16,ECON360
+10,Assignment 5,High,Not Started,2024-12-03,abc

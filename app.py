@@ -7,6 +7,7 @@ app = Flask(__name__)
 # Define file paths
 TASKS_FILE = 'tasks.csv'
 CATEGORIES_FILE = 'categories.csv'
+priority_mapping = {'High': 1, 'Medium': 2, 'Low': 3}
 
 # Initialize CSV files if they don't exist
 def initialize_csv_files():
@@ -61,7 +62,14 @@ def index():
     # Prepare tasks grouped by type
     tasks_by_type = {}
     for type_, category_list in grouped_categories.items():
-        tasks_by_type[type_] = tasks[tasks['category'].isin(category_list)].to_dict(orient='records')
+        tasks_in_category = tasks[tasks['category'].isin(category_list)].copy()
+        # Map 'priority' to a sort key
+        priority_mapping = {'High': 1, 'Medium': 2, 'Low': 3}
+        tasks_in_category['priority_order'] = tasks_in_category['priority'].map(priority_mapping)
+        # Sort by 'priority_order'
+        tasks_in_category = tasks_in_category.sort_values(by='priority_order')
+        # Convert to dict and remove the 'priority_order' column
+        tasks_by_type[type_] = tasks_in_category.drop(columns=['priority_order']).to_dict(orient='records')
 
     # Pass the full list of categories for the dropdown
     all_categories = categories.to_dict(orient='records')
@@ -71,8 +79,8 @@ def index():
 @app.route("/categories")
 def manage_categories():
     categories = read_categories()
-    # Group categories by type
-    grouped_categories = categories.groupby('type')['category'].apply(list).to_dict()
+    # Group categories by type, including all category data
+    grouped_categories = categories.groupby('type').apply(lambda x: x.to_dict(orient='records')).to_dict()
     return render_template("categories.html", grouped_categories=grouped_categories)
 
 # Route to add a new category
@@ -145,8 +153,21 @@ def update_status(task_id):
 @app.route("/delete_category/<int:category_id>", methods=["POST"])
 def delete_category(category_id):
     categories = read_categories()
-    categories = categories[categories["id"] != category_id]
-    save_categories(categories)
+    tasks = read_tasks()
+    
+    # Get the category name before deleting it
+    category_row = categories[categories["id"] == category_id]
+    if not category_row.empty:
+        category_name = category_row["category"].values[0]
+        
+        # Delete the category
+        categories = categories[categories["id"] != category_id]
+        save_categories(categories)
+        
+        # Delete tasks associated with the deleted category
+        tasks = tasks[tasks["category"] != category_name]
+        save_tasks(tasks)
+    
     return redirect("/categories")
 
 # Route to delete an entire category type
@@ -158,6 +179,40 @@ def delete_type(type_name):
     save_categories(categories)
     return redirect("/categories")
 
+# Route for the calendar page
+@app.route("/calendar")
+def calendar_view():
+    tasks = read_tasks()
+
+    # Prepare task data for the calendar
+    events = []
+    for _, row in tasks.iterrows():
+        due_date = row.get('due_date', '')
+        if pd.notnull(due_date) and due_date != '':
+            try:
+                # Ensure the due_date is in the correct format
+                datetime.strptime(due_date, "%Y-%m-%d")
+                event = {
+                    'title': row['task'],
+                    'start': due_date,
+                    'id': row['id'],
+                    'url': f"/task/{row['id']}"
+                }
+                events.append(event)
+            except ValueError:
+                # Skip tasks with invalid due_date format
+                continue
+    return render_template("calendar.html", events=events)
+
+# Route for task details
+@app.route("/task/<int:task_id>")
+def task_detail(task_id):
+    tasks = read_tasks()
+    task = tasks[tasks["id"] == task_id].to_dict(orient='records')
+    if task:
+        return render_template("task_detail.html", task=task[0])
+    else:
+        return "Task not found", 404
+
 if __name__ == "__main__":
     app.run(debug=True)
-

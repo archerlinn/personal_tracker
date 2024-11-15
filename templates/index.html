@@ -13,25 +13,29 @@
         <aside class="sidebar">
             <h2>Manager</h2>
             <ul>
-                <li><a href="/">To-Do List</a></li>
-                <li><a href="/categories">Manage Categories</a></li>
-            </ul>
+                <li><a href="/" {% if request.path == '/' %}class="active"{% endif %}>To-Do List</a></li>
+                <li><a href="/categories" {% if request.path == '/categories' %}class="active"{% endif %}>Manage Categories</a></li>
+                <li><a href="/calendar" {% if request.path == '/calendar' %}class="active"{% endif %}>Calendar</a></li>
+            </ul>            
         </aside>
 
         <!-- Main Content Area -->
         <div class="main-content">
             <!-- Header -->
             <div class="header">
-                <h1>Personal To-Do List</h1>
-                <input type="checkbox" id="theme-toggle-checkbox" hidden>
-                <label for="theme-toggle-checkbox" class="toggle-label">
-                    <span class="toggle-circle" id="toggle-icon">☀️</span>
-                </label>
+                <h1>My To-Do List</h1>
+                <div class="toggle-container">
+                    <input type="checkbox" id="theme-toggle-checkbox" hidden>
+                    <label for="theme-toggle-checkbox" class="toggle-label">
+                        <span class="toggle-circle" id="toggle-icon">☀️</span>
+                    </label>
+                </div>
             </div>
             <!-- Task Form -->
             <form id="task-form" action="/add" method="post">
                 <input type="text" name="task" placeholder="Enter your task..." required>
-                <select name="priority">
+                <select name="priority" required>
+                    <option value="" disabled selected>Select priority</option>
                     <option value="Low">Low</option>
                     <option value="Medium">Medium</option>
                     <option value="High">High</option>
@@ -45,53 +49,53 @@
                 </select>
                 <button type="submit">Add Task</button>
             </form>
-
-
             <!-- Categorized Task Tables -->
             {% for type_, tasks in tasks_by_type.items() %}
-            <h2>{{ type_ }}</h2>
-            <table class="task-table">
-                <thead>
-                    <tr>
-                        <th>Task</th>
-                        <th>Priority</th>
-                        <th>Status</th>
-                        <th>Due Date</th>
-                        <th>Category</th>
-                        <th>Action</th>
-                    </tr>
-                </thead>
-                <tbody>
-                    {% if tasks %}
-                    {% for task in tasks %}
-                    <tr>
-                        <td>{{ task.task }}</td>
-                        <td>{{ task.priority }}</td>
-                        <td>
-                            <form action="/update_status/{{ task.id }}" method="post">
-                                <select name="status" onchange="this.form.submit()">
-                                    <option value="Not Started" {% if task.status == 'Not Started' %}selected{% endif %}>Not Started</option>
-                                    <option value="In Progress" {% if task.status == 'In Progress' %}selected{% endif %}>In Progress</option>
-                                    <option value="Completed" {% if task.status == 'Completed' %}selected{% endif %}>Completed</option>
-                                </select>
-                            </form>
-                        </td>
-                        <td>{{ task.due_date }}</td>
-                        <td>{{ task.category }}</td>
-                        <td>
-                            <form action="/delete_task/{{ task.id }}" method="post">
-                                <button type="submit">Delete</button>
-                            </form>
-                        </td>
-                    </tr>
-                    {% endfor %}
-                    {% else %}
-                    <tr>
-                        <td colspan="6">No tasks available for this category type.</td>
-                    </tr>
-                    {% endif %}
-                </tbody>
-            </table>
+            <div class="task-group">
+                <h2>{{ type_ }}</h2>
+                <table class="task-table">
+                    <thead>
+                        <tr>
+                            <th>Task</th>
+                            <th>Priority</th>
+                            <th>Status</th>
+                            <th>Due Date</th>
+                            <th>Category</th>
+                            <th>Action</th>
+                        </tr>
+                    </thead>
+                    <tbody>
+                        {% if tasks %}
+                        {% for task in tasks %}
+                        <tr>
+                            <td>{{ task.task }}</td>
+                            <td>{{ task.priority }}</td>
+                            <td class="status-cell">
+                                <form action="/update_status/{{ task.id }}" method="post">
+                                    <select name="status" onchange="this.form.submit()">
+                                        <option value="Not Started" {% if task.status == 'Not Started' %}selected{% endif %}>Not Started</option>
+                                        <option value="In Progress" {% if task.status == 'In Progress' %}selected{% endif %}>In Progress</option>
+                                        <option value="Completed" {% if task.status == 'Completed' %}selected{% endif %}>Completed</option>
+                                    </select>
+                                </form>
+                            </td>                        
+                            <td>{{ task.due_date }}</td>
+                            <td>{{ task.category }}</td>
+                            <td>
+                                <form action="/delete_task/{{ task.id }}" method="post">
+                                    <button type="submit" class="delete-button">Delete</button>
+                                </form>
+                            </td>
+                        </tr>
+                        {% endfor %}
+                        {% else %}
+                        <tr>
+                            <td colspan="6">No tasks available for this category type.</td>
+                        </tr>
+                        {% endif %}
+                    </tbody>
+                </table>
+            </div>
             {% endfor %}
         </div>
     </div>
