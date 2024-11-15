@@ -598,70 +598,7 @@ body.dark-mode .category-header h2 {
     background-color: #FF453A;
 }
 
-/* ========================================================
-   10. Calendar Styles
-   ======================================================== */
 
-/* Adjust FullCalendar to fit within your main content area */
-#calendar {
-    max-width: 100%;
-    margin: 0 auto;
-    padding: 20px 0;
-}
-
-/* Dark Mode Styles for FullCalendar */
-body.dark-mode .fc {
-    background-color: var(--text-dark-color);
-    color: var(--offwhite-color);
-}
-
-body.dark-mode .fc-toolbar,
-body.dark-mode .fc-toolbar-title,
-body.dark-mode .fc-button {
-    background-color: var(--text-dark-color);
-    color: var(--offwhite-color);
-    border: none;
-}
-
-body.dark-mode .fc-button-primary {
-    background-color: var(--primary-color);
-    border-color: var(--primary-color);
-}
-
-body.dark-mode .fc-button-primary:hover {
-    background-color: #005BB5;
-}
-
-body.dark-mode .fc-daygrid-day,
-body.dark-mode .fc-daygrid-day-top {
-    background-color: var(--text-dark-color);
-    border-color: #444;
-}
-
-body.dark-mode .fc-daygrid-event {
-    background-color: var(--accent-color);
-    border-color: var(--accent-color);
-    color: var(--offwhite-color);
-}
-
-/* Adjust event colors */
-.fc-event {
-    background-color: var(--accent-color);
-    border: none;
-    color: var(--offwhite-color);
-    padding: 5px;
-    border-radius: 4px;
-}
-
-/* Hover effect for events */
-.fc-event:hover {
-    background-color: var(--primary-color);
-}
-
-/* Adjust the calendar header */
-.fc-toolbar {
-    margin-bottom: 20px;
-}
 
 /* ========================================================
    Task Details Styles
@@ -669,7 +606,7 @@ body.dark-mode .fc-daygrid-event {
    .task-details {
     background-color: var(--offwhite-color);
     padding: 30px;
-    border-radius: 8px;
+    border-radius: 20px;
     box-shadow: 0 4px 12px var(--shadow-color);
     max-width: 600px;
     margin: 0 auto;
@@ -682,9 +619,10 @@ body.dark-mode .task-details {
 }
 
 .task-details h2 {
+    margin-top: 5px;
     margin-bottom: 20px;
     color: var(--primary-color);
-    font-size: 28px;
+    font-size: 10px;
     font-weight: var(--font-weight-semibold);
 }
 
@@ -796,7 +734,7 @@ body.dark-mode .fc .fc-button {
 }
 
 body.dark-mode .fc .fc-button:hover {
-    background-color: var(--primary-color);
+    background-color: var(--primary-color);s
 }
 
 /* Active Button State */
@@ -812,68 +750,105 @@ body.dark-mode .fc .fc-button.fc-button-active {
 /* Day Cells */
 .fc .fc-daygrid-day {
     background-color: var(--offwhite-color);
-    border: 1px solid var(--border-color);
+    border: none;
 }
 
 body.dark-mode .fc .fc-daygrid-day {
-    background-color: #2C2C2E;
-    border-color: #444;
+    background-color:var(--text-dark-color);
 }
 
 /* Day Numbers */
 .fc .fc-daygrid-day-top {
     font-weight: var(--font-weight-medium);
     color: var(--text-dark-color);
-    padding: 5px;
+    padding: 8px;
 }
 
 body.dark-mode .fc .fc-daygrid-day-top {
     color: var(--offwhite-color);
 }
 
+
 /* Events */
 .fc .fc-event {
     background-color: var(--accent-color);
     border: none;
     color: var(--offwhite-color);
-    padding: 4px 6px;
-    border-radius: 4px;
+    padding: 6px 8px;
+    border-radius: 6px;
     font-size: 14px;
     font-weight: var(--font-weight-medium);
     cursor: pointer;
-    transition: background-color 0.3s;
+    transition: background-color 0.3s, box-shadow 0.3s;
+    box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
 }
 
 .fc .fc-event:hover {
     background-color: var(--primary-color);
+    box-shadow: 0 4px 8px rgba(0, 0, 0, 0.15);
 }
 
 body.dark-mode .fc .fc-event {
     background-color: var(--accent-color);
+    box-shadow: 0 2px 4px rgba(255, 255, 255, 0.1);
 }
 
 body.dark-mode .fc .fc-event:hover {
     background-color: var(--primary-color);
+    box-shadow: 0 4px 8px rgba(255, 255, 255, 0.15);
 }
 
 /* Today Highlight */
 .fc .fc-day-today {
-    background-color: rgba(110, 135, 216, 0.1);
+    background-color: rgba(255, 223, 107, 0.2); /* Light yellow background */
+    border: 2px solid var(--accent-color);
 }
 
 body.dark-mode .fc .fc-day-today {
-    background-color: rgba(110, 135, 216, 0.2);
+    background-color: rgba(255, 223, 107, 0.1);
+    border: 2px solid var(--accent-color);
 }
 
-/* Weekends */
-.fc .fc-day-sat,
-.fc .fc-day-sun {
+
+/* Weekends - Apply background only to day cells, not header cells */
+.fc .fc-daygrid-day.fc-day-sat,
+.fc .fc-daygrid-day.fc-day-sun {
     background-color: rgba(15, 40, 98, 0.05);
 }
 
-body.dark-mode .fc .fc-day-sat,
-body.dark-mode .fc .fc-day-sun {
+body.dark-mode .fc .fc-daygrid-day.fc-day-sat,
+body.dark-mode .fc .fc-daygrid-day.fc-day-sun {
     background-color: rgba(15, 40, 98, 0.1);
+}
+
+/* Hover Effect for Day Cells */
+.fc .fc-daygrid-day:hover {
+    background-color: rgba(15, 40, 98, 0.05);
+}
+
+body.dark-mode .fc .fc-daygrid-day:hover {
+    background-color: rgba(255, 255, 255, 0.1);
+}
+
+/* Calendar Header Cells */
+.fc .fc-col-header-cell {
+    background-color: var(--primary-color);
+    border: none;
+}
+
+body.dark-mode .fc .fc-col-header-cell {
+    background-color: var(--text-dark-color);
+}
+
+/* Header Cell Text */
+.fc .fc-col-header-cell-cushion {
+    color: var(--offwhite-color);
+    font-weight: var(--font-weight-medium);
+    padding: 5px 0;
+}
+
+body.dark-mode .fc .fc-col-header-cell-cushion {
+    color: var(--offwhite-color);
 }
 
 /* Responsive Calendar */
