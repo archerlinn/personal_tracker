@@ -622,7 +622,7 @@ body.dark-mode .task-details {
     margin-top: 5px;
     margin-bottom: 20px;
     color: var(--primary-color);
-    font-size: 10px;
+    font-size: 30px;
     font-weight: var(--font-weight-semibold);
 }
 
@@ -685,7 +685,6 @@ body.dark-mode .button:hover {
     }
 }
 
-
 /* ========================================================
    Custom FullCalendar Styles
    ======================================================== */
@@ -704,7 +703,7 @@ body.dark-mode .button:hover {
 }
 
 .fc .fc-toolbar-title {
-    font-size: 24px;
+    font-size: 30px;
     font-weight: var(--font-weight-semibold);
     color: var(--primary-color);
 }
@@ -734,7 +733,7 @@ body.dark-mode .fc .fc-button {
 }
 
 body.dark-mode .fc .fc-button:hover {
-    background-color: var(--primary-color);s
+    background-color: var(--primary-color);
 }
 
 /* Active Button State */
@@ -767,7 +766,6 @@ body.dark-mode .fc .fc-daygrid-day {
 body.dark-mode .fc .fc-daygrid-day-top {
     color: var(--offwhite-color);
 }
-
 
 /* Events */
 .fc .fc-event {

@@ -68,6 +68,8 @@
                 },
                 showNonCurrentDates: false, // Hides non-current month dates
                 fixedWeekCount: false,      // Removes extra weeks
+                contentHeight:"auto",
+                handleWindowResize:true,
                 eventClick: function(info) {
                     if (info.event.url) {
                         info.jsEvent.preventDefault();
@@ -75,8 +77,8 @@
                     }
                 }
             });
-
             calendar.render();
+            calendar.updateSize(); // Force the calendar to recalculate its size
         });
 
         // Dark Mode Toggle Script
