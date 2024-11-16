@@ -20,12 +20,12 @@
         <aside class="sidebar">
             <h2>Manager</h2>
             <ul>
-                <li><a href="/">To-Do List</a></li>
-                <li><a href="/categories">Manage Categories</a></li>
-                <li><a href="/calendar" class="active">Calendar</a></li>
+                <li><a href="/" {% if request.path == '/' %}class="active"{% endif %}>To-Do List</a></li>
+                <li><a href="/categories" {% if request.path == '/categories' %}class="active"{% endif %}>Manage Categories</a></li>
+                <li><a href="/calendar" {% if request.path == '/calendar' %}class="active"{% endif %}>Calendar</a></li>
+                <li><a href="/assistant" {% if request.path == '/assistant' %}class="active"{% endif %}>Assistant</a></li>
             </ul>
         </aside>
-
         <!-- Main Content -->
         <div class="main-content">
             <!-- Header -->

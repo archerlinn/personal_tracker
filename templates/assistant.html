@@ -1,0 +1,187 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Assistant</title>
+    <link rel="stylesheet" href="{{ url_for('static', filename='styles.css') }}">
+</head>
+<body> 
+    <!-- Page Container -->
+    <div class="page-container">
+        <!-- Sidebar -->
+        <aside class="sidebar">
+            <h2>Manager</h2>
+            <ul>
+                <li><a href="/" {% if request.path == '/' %}class="active"{% endif %}>To-Do List</a></li>
+                <li><a href="/categories" {% if request.path == '/categories' %}class="active"{% endif %}>Manage Categories</a></li>
+                <li><a href="/calendar" {% if request.path == '/calendar' %}class="active"{% endif %}>Calendar</a></li>
+                <li><a href="/assistant" {% if request.path == '/assistant' %}class="active"{% endif %}>Assistant</a></li>
+            </ul>
+        </aside>
+
+        <!-- Main Content Area -->
+        <div class="main-content">
+            <!-- Header -->
+            <div class="header">
+                <h1>Assistant</h1>
+                <div class="toggle-container">
+                    <input type="checkbox" id="theme-toggle-checkbox" hidden>
+                    <label for="theme-toggle-checkbox" class="toggle-label">
+                        <span class="toggle-circle" id="toggle-icon">☀️</span>
+                    </label>
+                </div>
+            </div>
+            
+            <!-- Chat Container -->
+            <div class="chat-container">
+                <div class="chat-header">
+                    <h2>Doggy</h2>
+                </div>
+
+                <!-- Dog Photo -->
+                <div class="dog-photo-container">
+                    <img src="{{ url_for('static', filename='images/dog1.jpg') }}" alt="Talking Dog" class="dog-photo">
+                </div>
+
+                <!-- Chat Messages -->
+                <div class="chat-messages" id="chat-messages">
+                    <!-- Messages will appear here -->
+                </div>
+
+                <!-- Chat Input -->
+                <div class="chat-input">
+                    <input type="text" id="user-input" placeholder="Type your message here..." autocomplete="off">
+                    <button id="send-button">Send</button>
+                </div>
+            </div>
+        </div>
+    </div>
+
+    <script>
+        const sendButton = document.getElementById('send-button');
+        const userInput = document.getElementById('user-input');
+        const chatMessages = document.getElementById('chat-messages');
+
+        // Function to append messages to the chat
+        function appendMessage(sender, text) {
+            const messageDiv = document.createElement('div');
+            if (sender === 'user') {
+                messageDiv.classList.add('message', 'user-message');
+            } else if (sender === 'assistant') {
+                messageDiv.classList.add('message', 'bot-message');
+            }
+
+            const textDiv = document.createElement('div');
+            textDiv.classList.add('text');
+            textDiv.textContent = text;
+
+            messageDiv.appendChild(textDiv);
+            chatMessages.appendChild(messageDiv);
+            chatMessages.scrollTop = chatMessages.scrollHeight;
+        }
+
+        // Function to send message
+        function sendMessage() {
+            const message = userInput.value.trim();
+            if (message === '') return;
+
+            appendMessage('user', message);
+            userInput.value = '';
+            userInput.focus();
+
+            // Send the message to the backend
+            fetch('/chat', {
+                method: 'POST',
+                headers: {
+                    'Content-Type': 'application/json',
+                },
+                body: JSON.stringify({ message: message }),
+            })
+            .then(response => response.json())
+            .then(data => {
+                if (data.response) {
+                    appendMessage('assistant', data.response);
+                } else {
+                    appendMessage('assistant', "Sorry, I couldn't process your request.");
+                }
+            })
+            .catch((error) => {
+                console.error('Error:', error);
+                appendMessage('assistant', "Sorry, I couldn't process your request.");
+            });
+        }
+
+        // Event listeners
+        sendButton.addEventListener('click', sendMessage);
+        userInput.addEventListener('keypress', function(e) {
+            if (e.key === 'Enter') {
+                sendMessage();
+            }
+        });
+        const themeToggleCheckbox = document.getElementById('theme-toggle-checkbox');
+        const body = document.body;
+        const toggleIcon = document.getElementById('toggle-icon');
+    
+        // Initialize Dark Mode based on localStorage
+        if (localStorage.getItem('theme') === 'dark') {
+            body.classList.add('dark-mode');
+            themeToggleCheckbox.checked = true;
+            toggleIcon.textContent = '🌙';
+        } else {
+            toggleIcon.textContent = '☀️';
+        }
+    
+        // Toggle Dark Mode
+        themeToggleCheckbox.addEventListener('change', () => {
+            if (themeToggleCheckbox.checked) {
+                body.classList.add('dark-mode');
+                toggleIcon.textContent = '🌙';
+                localStorage.setItem('theme', 'dark');
+            } else {
+                body.classList.remove('dark-mode');
+                toggleIcon.textContent = '☀️';
+                localStorage.setItem('theme', 'light');
+            }
+        });
+        function bounceDogPhoto() {
+        const dogPhoto = document.querySelector('.dog-photo');
+        dogPhoto.classList.add('bounce');
+        setTimeout(() => {
+            dogPhoto.classList.remove('bounce');
+        }, 500);
+    }
+
+    // Call bounceDogPhoto() when the assistant sends a message
+    function sendMessage() {
+        const message = userInput.value.trim();
+        if (message === '') return;
+
+        appendMessage('user', message);
+        userInput.value = '';
+        userInput.focus();
+
+        fetch('/chat', {
+            method: 'POST',
+            headers: {
+                'Content-Type': 'application/json',
+            },
+            body: JSON.stringify({ message: message }),
+        })
+        .then(response => response.json())
+        .then(data => {
+            if (data.response) {
+                appendMessage('assistant', data.response);
+                bounceDogPhoto();
+            } else {
+                appendMessage('assistant', "Sorry, I couldn't process your request.");
+            }
+        })
+        .catch((error) => {
+            console.error('Error:', error);
+            appendMessage('assistant', "Sorry, I couldn't process your request.");
+        });
+    }
+    </script>
+</body>
+</html>
