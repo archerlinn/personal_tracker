@@ -1,7 +1,12 @@
 id,task,priority,status,due_date,category
-1,Review Exam,High,Completed,2024-11-14,ECON370
-3,Add Calendar,Medium,Not Started,2024-11-17,Personal Tracker
 5,Lesson2,Medium,Not Started,2024-11-17,Deep Learning
 8,Lab7,High,Not Started,2024-11-15,ECON360
-9,test,Medium,Not Started,2024-11-16,ECON360
-10,Assignment 5,High,Not Started,2024-12-03,abc
+9,Charlie1,Medium,Not Started,2024-11-17,Robotics
+10,HW7,High,Not Started,2024-11-17,MGMT306
+11,Final Project Tables,High,Not Started,2024-11-17,ECON360
+12,Python Final Project,Medium,Not Started,2024-11-30,MGMT388
+13,SetUp Drone System,Medium,Not Started,2024-11-17,Drone Delivery
+14,Integrate Chatbot,Medium,Not Started,2024-11-24,Personal Tracker
+15,Finish Documentation,Low,Not Started,2024-12-06,Mellow Space
+16,Get Dinner w/ Katherine,High,Not Started,2024-11-15,Katherine
+17,Edit Tasks,Medium,Not Started,2024-11-17,Personal Tracker
