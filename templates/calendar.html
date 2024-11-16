@@ -59,6 +59,8 @@
             var events = {{ events | tojson | safe }};
 
             var calendar = new FullCalendar.Calendar(calendarEl, {
+                slotMinTime: '05:00:00', // Start at 8 AM
+                slotMaxTime: '24:00:00', // End at 6 PM
                 initialView: 'dayGridMonth',
                 events: events,
                 headerToolbar: {
@@ -69,7 +71,7 @@
                 showNonCurrentDates: false, // Hides non-current month dates
                 fixedWeekCount: false,      // Removes extra weeks
                 contentHeight:"auto",
-                handleWindowResize:true,
+                nowIndicator: true,
                 eventClick: function(info) {
                     if (info.event.url) {
                         info.jsEvent.preventDefault();
