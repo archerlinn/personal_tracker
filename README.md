@@ -1,22 +1,20 @@
-Based on the available information from the repository , here's a README.md template you can use:
-
-```markdown
 # Personal Tracker
 
 ## Overview
 
-Personal Tracker is a web application designed to help users monitor and manage their personal tasks and categories efficiently.
+I built a personal tracker web application designed to help users monitor and manage their tasks and categories efficiently.
 
 ## Features
 
 - **Task Management**: Create, update, and delete tasks.
 - **Category Organization**: Assign tasks to specific categories for better organization.
+- **Calendar Integration**: Visualize the due dates of tasks on their calendar tab.
 - **Data Persistence**: Store tasks and categories in CSV files for simplicity and portability.
 
 ## Technologies Used
 
 - **Python**: Backend logic.
-- **HTML & CSS**: Frontend structure and styling.
+- **HTML, JS, and CSS**: Frontend structure and styling.
 
 ## Getting Started
 
@@ -74,17 +72,10 @@ Personal Tracker is a web application designed to help users monitor and manage 
 - `instance/`: Contains instance-specific files, such as the SQLite database (if used).
 - `categories.csv` and `tasks.csv`: CSV files storing category and task data, respectively.
 
+## Future Improvements
+
+Integrate a chatbot that can directly manage your tasks based on NLP
+
 ## Contributing
 
 Contributions are welcome! Please fork the repository and submit a pull request with your proposed changes.
-
-## License
-
-This project is licensed under the MIT License. See the `LICENSE` file for details.
-
-## Acknowledgements
-
-Thanks to the open-source community for providing resources and inspiration for this project.
-```
-
-Feel free to customize this template further to fit the specific details and requirements of your project. 
